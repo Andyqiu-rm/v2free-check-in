@@ -153,7 +153,7 @@ if __name__ == "__main__":
     #每次运行都发邮件
 import datetime
 tz = datetime.timezone(datetime.timedelta(hours=8))
-if datetime.datetime.now(tz).day % 3 == 0:
+#if datetime.datetime.now(tz).day % 3 == 0:
     send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
 
       

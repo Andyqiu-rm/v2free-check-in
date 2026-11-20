@@ -91,3 +91,6 @@ jobs:
             echo "run.log 未生成"
           fi
 
+    - name: Show run.log
+      if: always()
+      run: cat run.log || echo "run.log 不存在"

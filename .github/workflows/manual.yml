@@ -2,10 +2,10 @@ name: V2freeCheckin
 
 on:
   workflow_dispatch:
-  watch:
-    types: [ started ]
   schedule:
-    - cron: '0 0 * * *'
+    # UTC: Beijing 07:00,12:00
+    - cron: "0 23 * * *"
+    - cron: "0 4 * * *"
     
 permissions:
   actions: write

@@ -65,12 +65,13 @@ def main(usr, pw):
     except ValueError:
         return usr + " " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " ❌ 签到失败：返回内容不是 JSON"
 
+    checkin_msg = str(checkin_result.get("msg", ""))
     if checkin_result.get("ret") == 1:
-        msg = "✅ " + str(checkin_result.get("msg", "签到成功"))
-    elif "签" in str(checkin_result.get("msg", "")) and "已" in str(checkin_result.get("msg", "")):
-        msg = "🟢 " + str(checkin_result.get("msg", "今日已签到"))
+        msg = "✅ " + (checkin_msg if checkin_msg else "签到成功")
+    elif ("签" in checkin_msg and "已" in checkin_msg) or "已签到" in checkin_msg:
+        msg = "🟢 " + (checkin_msg if checkin_msg else "今日已签到")
     else:
-        msg = "❌ 签到失败：" + str(checkin_result.get("msg", resp.text))
+        msg = "❌ 签到失败：" + (checkin_msg if checkin_msg else str(resp.text))
 
     # 4. 从用户中心页面获取当前流量信息（签到已过/失败时也能拿到）
     info = fetch_user_info(client)

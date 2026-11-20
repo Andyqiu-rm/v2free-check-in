@@ -6,7 +6,11 @@ on:
     # UTC: Beijing 07:00,12:00
     - cron: "0 23 * * *"
     - cron: "0 4 * * *"
-    
+
+concurrency:
+  group: v2freecheckin
+  cancel-in-progress: false
+
 permissions:
   actions: write
   checks: write
@@ -83,8 +87,23 @@ jobs:
           if git diff --cached --quiet; then
             echo "run.log 无变化"
           else
-            git commit -m "action" -m "⭐ 签到成功 [skip ci]"
-            git push || (git pull --rebase && git push)
+            git commit -m "⭐ 签到成功"
+            # push 被拒（远程有新提交）时：备份本次日志 -> 放弃本地提交 -> 拉取远程 -> 追加新行 -> 重新提交
+            if ! git push; then
+              echo "push 被拒，处理并发冲突"
+              cp run.log /tmp/run.log.mine
+              git reset --hard HEAD~1
+              git pull --rebase origin "${{ github.ref_name }}" || git pull origin "${{ github.ref_name }}"
+              # 把本次新增、远程还没有的日志行追加回去（整行匹配去重）
+              grep -Fxv -f run.log /tmp/run.log.mine >> run.log || true
+              git add -f run.log
+              if git diff --cached --quiet; then
+                echo "run.log 无新增内容"
+              else
+                git commit -m "⭐ 签到成功"
+                git push || echo "重试推送仍失败，跳过本次日志提交"
+              fi
+            fi
           fi
         else
           echo "run.log 未生成"

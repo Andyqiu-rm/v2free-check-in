@@ -87,14 +87,6 @@ def fetch_user_info(client):
         return {}
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='V2Free签到脚本')
-    parser.add_argument('--username', type=str, help='账号')
-    parser.add_argument('--password', type=str, help='密码')
-    args = parser.parse_args()
-    print(main(args.username, args.password))
-
-
 
 
 # 发送到我的邮箱

@@ -154,5 +154,10 @@ if __name__ == "__&#8203;main__":
     #每次运行都发邮件
     #if int(time.strftime("%d", time.localtime()))% 3== 0:
     send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
+
+    logging.basicConfig(filename='run.log', level=logging.INFO,
+                    format=LOG_FORMAT, encoding='utf-8')
+    ...
+    logging.info(mask_email(msg))   # 这行负责写文件
       
 

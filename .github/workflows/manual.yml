@@ -74,23 +74,3 @@ jobs:
         done
 
 
-    - name: Commit run.log
-      if: always()
-      run: |
-          if [ -f run.log ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -f run.log
-            if git diff --cached --quiet; then
-              echo "run.log 无变化"
-            else
-              git commit -m "action 签到成功 [skip ci]"
-              git push || (git pull --rebase && git push)
-            fi
-          else
-            echo "run.log 未生成"
-          fi
-
-    - name: Show run.log
-      if: always()
-      run: cat run.log || echo "run.log 不存在"

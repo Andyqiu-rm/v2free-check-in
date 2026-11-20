@@ -6,6 +6,8 @@ from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 import time
 import argparse
+import logging
+
 
 BASE_URL = "https://w1.v2ai.top"  # 新版登录/签到域名
 
@@ -120,18 +122,29 @@ def send(info, mail, receivers, subject='', imgpth=''):
         print(e)
 
 
-if __name__ == "__main__":
+if __name__ == "__&#8203;main__":
+    LOG_FORMAT = "[%(asctime)s] [%(levelname)s] %(message)s"
+    logging.basicConfig(
+        filename='run.log',
+        level=logging.INFO,
+        format=LOG_FORMAT,
+        encoding='utf-8'
+    )
+      
     parser = argparse.ArgumentParser(description='V2free签到脚本')
-    parser.add_argument('--username', type=str,help='账号')
+    parser.add_argument('--username', type=str, help='账号')
     parser.add_argument('--password', type=str, help='密码')
     parser.add_argument('--remail', type=str, help='接收邮箱')
     parser.add_argument('--semail', type=str, help='发送邮箱')
     parser.add_argument('--secode', type=str, help='发送密码')
     args = parser.parse_args()
-    msg = main(args.username,args.password)
+      
+    msg = main(args.username, args.password)
     print(msg)
-    #加#每次都发邮件，不加#   %d 取的是"日"（1~31）​，不是小时
-    #% 3 == 0 意味着只在 3、6、9、12、15、18、21、24、27、30 号这 10 天发邮件
-    #今天是 20 号，20 % 3 = 2，不会发邮件
+    logging.info(msg)   # 写入 run.log
+
+    #加#每次都发邮件，不加#   %d 取的是"日"（1~31）​，不是小时% 3 == 0 意味着只在 3、6、9、12、15、18、21、24、27、30 号这 10 天发邮件今天是 20 号，20 % 3 = 2，不会发邮件
+    #每次运行都发邮件
     #if int(time.strftime("%d", time.localtime()))% 3== 0:
-        send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
+    send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
+

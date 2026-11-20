@@ -151,8 +151,8 @@ if __name__ == "__main__":
 
     #加#每次都发邮件，不加#   %d 取的是"日"（1~31）​，不是小时% 3 == 0 意味着只在 3、6、9、12、15、18、21、24、27、30 号这 10 天发邮件今天是 20 号，20 % 3 = 2，不会发邮件
     #每次运行都发邮件
-    #if int(time.strftime("%d", time.localtime()))% 3== 0:
-    send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
+    if int(time.strftime("%d", time.localtime()))% 3== 0:
+        send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
 
       
 

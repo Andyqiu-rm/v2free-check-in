@@ -6,12 +6,20 @@ from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 import time
 import argparse
+import logging
 
 
 BASE_URL = "https://w1.v2ai.top"  # 新版登录/签到域名
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
+
+
+# 邮箱脱敏：150623855@qq.com -> 1****@qq.com
+def mask_email(text):
+    return re.sub(r'[\w.+-]+@[\w.-]+\.\w+',
+                  lambda m: m.group(0)[0] + '****' + m.group(0)[m.group(0).rfind('@'):],
+                  text)
 
      
 def main(usr, pw):
@@ -122,6 +130,14 @@ def send(info, mail, receivers, subject='', imgpth=''):
 
 
 if __name__ == "__main__":
+    LOG_FORMAT = "[%(asctime)s] [%(levelname)s] %(message)s"
+    logging.basicConfig(
+        filename='run.log',
+        level=logging.INFO,
+        format=LOG_FORMAT,
+        encoding='utf-8'
+    )
+
     parser = argparse.ArgumentParser(description='V2free签到脚本')
     parser.add_argument('--username', type=str,help='账号')
     parser.add_argument('--password', type=str, help='密码')
@@ -130,6 +146,7 @@ if __name__ == "__main__":
     parser.add_argument('--secode', type=str, help='发送密码')
     args = parser.parse_args()
     msg = main(args.username,args.password)
+    logging.info(mask_email(msg))   # 写入 run.log（邮箱已脱敏）
     print(msg)
 
     #加#每次都发邮件，不加#   %d 取的是"日"（1~31）​，不是小时% 3 == 0 意味着只在 3、6、9、12、15、18、21、24、27、30 号这 10 天发邮件今天是 20 号，20 % 3 = 2，不会发邮件

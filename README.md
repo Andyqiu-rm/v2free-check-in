@@ -1,29 +1,39 @@
-# V2free自动签到,并发送邮件
-v2free checkin ,send email
+# V2free 自动签到，并发送邮件
+
+v2free checkin, send email
+
 ## 使用教程
-点击Fork按钮将项目Fork到自己仓库
+
+点击 Fork 按钮将项目 Fork 到自己仓库。
 
 ## 配置参数
 
-依次点击上栏【Setting】->【Security】->【Secrets】->【Actions】->【New repository secrets】 添加账号和密码等信息，示例如下：
+依次点击上栏【Settings】->【Secrets and variables】->【Actions】->【New repository secret】添加账号和密码等信息，示例如下：
 
-
-    |key    |value                     |
-
-    |USER   |123@qq.com,567@outlook.com|
-    |PWD    |ccc,aaa                   |
-    |remail |abc@163.com               |
-    |semail |cdc@163.com               |
-    |secode |sakdjdiunerhv             |
-
+| key | value |
+| --- | --- |
+| USER | 123@qq.com,567@outlook.com |
+| PWD | ccc,aaa |
+| remail | abc@163.com（收件邮箱） |
+| semail | cdc@163.com（发件邮箱，QQ 邮箱） |
+| secode | xxxxxxxxxxxxxx（发件邮箱的 SMTP 授权码，不是登录密码） |
 
 ## 说明
+
 * 支持多账号，账号之间与密码之间用半角逗号分隔，账号与密码的个数要对应。
 
-* 脚本会在北京时间08:00执行一次(Github定时任务会有20min左右延迟)，或者自己action亦可手动执行一次(无延迟)。
-* 2023年9月21日，邮箱发送改为日期为3的倍数发送一次。另网站信息加密，无法读取到流量数据。
-* 2023年12月20日，×另网站信息加密，无法读取到流量数据×。
-*
-* 2026年11月20日，
-*   🟢签到成功，剩余流量：***GB，今日已用：***MB
-*   🟢 您似乎已经签到过了...，剩余流量：***GB，今日已用：***MB
+* **定时执行**：北京时间每天 **07:00** 和 **12:00** 各执行一次（workflow 里的 cron 为 UTC `0 23` 和 `0 4`）。GitHub 定时任务在高负载时可能延迟几分钟到几十分钟，属正常现象。也可以在 Actions 页面点 **Run workflow** 手动执行一次（无延迟）。
+
+* **邮件通知**：每次运行结束都会发一封邮件（由 `main.py` 里的 `send()` 通过 QQ 邮箱 SMTP 465 端口 SSL 发送）。`secode` 必须填邮箱的 SMTP 授权码，填登录密码会发送失败。
+
+* **签到状态**（`run.log` 和邮件里显示的三种结果）：
+  * `✅ 签到成功` —— 本次签到成功
+  * `🟢 您似乎已经签到过了...` —— 今日已签到过（站点返回的原文）
+  * `❌ 签到失败：原因` —— 签到失败，如"请求过于频繁，请稍后再试"
+  * 末尾附带当前流量：`剩余流量：***GB，今日已用：***MB`
+
+* **run.log 日志**：脚本每次运行都会把签到结果（邮箱已脱敏，如 `1****@qq.com`）写入仓库根目录的 `run.log`，工作流随后自动 commit 回仓库，可在文件页面查看累积的签到历史。提交信息会根据本次结果自动显示 `⭐ 签到成功` 或 `❌ 签到失败`。
+
+* **防并发**：workflow 顶部配置了 `concurrency`，同时只允许一个运行，避免多次触发时 `run.log` 提交冲突。
+
+* **安全提示**：日志中的邮箱已脱敏，但 `secrets` 里的密码、授权码等敏感信息请勿写进代码或日志，也不要把私有信息提交到公开仓库。

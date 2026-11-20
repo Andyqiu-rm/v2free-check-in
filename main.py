@@ -155,9 +155,15 @@ if __name__ == "__&#8203;main__":
     #if int(time.strftime("%d", time.localtime()))% 3== 0:
     send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
 
-    logging.basicConfig(filename='run.log', level=logging.INFO,
-                    format=LOG_FORMAT, encoding='utf-8')
+    logging.basicConfig(
+        filename='run.log',
+        level=logging.INFO,
+        format=LOG_FORMAT,
+        encoding='utf-8'
+    )
     ...
-    logging.info(mask_email(msg))   # 这行负责写文件
+    msg = main(args.username, args.password)
+    logging.info(mask_email(msg))   # ← 就是这行负责写文件
+    print(msg)
       
 

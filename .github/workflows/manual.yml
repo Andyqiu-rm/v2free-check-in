@@ -87,7 +87,14 @@ jobs:
           if git diff --cached --quiet; then
             echo "run.log 无变化"
           else
-            git commit -m "⭐ 签到成功"
+            # 根据本次新增日志判断结果：只要有一条 ❌ 就算失败
+            if git diff --cached -- run.log | grep -q '^+.*❌'; then
+              commit_msg="❌ 签到失败"
+            else
+              commit_msg="⭐ 签到成功"
+            fi
+            echo "本次提交信息：$commit_msg"
+            git commit -m "$commit_msg"
             # push 被拒（远程有新提交）时：备份本次日志 -> 放弃本地提交 -> 拉取远程 -> 追加新行 -> 重新提交
             if ! git push; then
               echo "push 被拒，处理并发冲突"
@@ -100,7 +107,7 @@ jobs:
               if git diff --cached --quiet; then
                 echo "run.log 无新增内容"
               else
-                git commit -m "⭐ 签到成功"
+                git commit -m "$commit_msg"
                 git push || echo "重试推送仍失败，跳过本次日志提交"
               fi
             fi

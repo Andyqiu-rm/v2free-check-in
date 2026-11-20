@@ -61,3 +61,4 @@ V2free auto check-in with email notification and auto-committed run.log
 - 账号与密码的个数必须一致，否则脚本会报错退出。
 - `secrets` 中的密码和授权码属于敏感信息，请勿写入代码或日志，也不要把私有配置提交到公开仓库。
 - 日志中的邮箱已脱敏，但邮件正文中是完整账号，请注意邮件的使用范围。
+如果这个项目帮你省下了一点时间，欢迎点个 ⭐。

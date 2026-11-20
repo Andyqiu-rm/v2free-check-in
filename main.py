@@ -14,14 +14,7 @@ BASE_URL = "https://w1.v2ai.top"  # 新版登录/签到域名
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
 
-def mask_email(text):
-    """邮箱脱敏：1506@qq.com -> 1****@qq.com"""
-    return re.sub(
-        r'[\w.+-]+@[\w.-]+\.\w+',
-        lambda m: m.group(0)[0] + '****' + m.group(0)[m.group(0).rfind('@'):],
-        text,
-    )
-      
+     
 def main(usr, pw):
     client = requests.Session()
     client.headers.update({"User-Agent": UA})
@@ -128,6 +121,13 @@ def send(info, mail, receivers, subject='', imgpth=''):
     except smtplib.SMTPException as e:
         print(e)
 
+def mask_email(text):
+    """邮箱脱敏：1506@qq.com -> 1****@qq.com"""
+    return re.sub(
+        r'[\w.+-]+@[\w.-]+\.\w+',
+        lambda m: m.group(0)[0] + '****' + m.group(0)[m.group(0).rfind('@'):],
+        text,
+    )
 
 if __name__ == "__&#8203;main__":
     LOG_FORMAT = "[%(asctime)s] [%(levelname)s] %(message)s"

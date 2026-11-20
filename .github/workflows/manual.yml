@@ -83,7 +83,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "run.log 无变化"
           else
-            git commit -m "action 签到成功 [skip ci]"
+            git commit -m "action" -m "⭐ 签到成功 [skip ci]"
             git push || (git pull --rebase && git push)
           fi
         else

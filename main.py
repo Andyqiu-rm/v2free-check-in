@@ -21,8 +21,9 @@ def mask_email(text):
                   lambda m: m.group(0)[0] + '****' + m.group(0)[m.group(0).rfind('@'):],
                   text)
 
-     
+
 def main(usr, pw):
+    """签到单个账号，返回一行结果字符串（不发邮件）"""
     client = requests.Session()
     client.headers.update({"User-Agent": UA})
 
@@ -97,12 +98,9 @@ def fetch_user_info(client):
         return {}
 
 
-
-
-# 发送到我的邮箱
+# 发送汇总邮件：所有账号的结果放在一封邮件里
 def send(info, mail, receivers, subject='', imgpth=''):
-    #if info or mail[0] or mail[1] or receivers == '': return
-    sender,key = mail
+    sender, key = mail
     message = MIMEMultipart('mixed')
     if subject == "": subject = info
     message['Subject'] = subject
@@ -117,7 +115,7 @@ def send(info, mail, receivers, subject='', imgpth=''):
         message.attach(msgImage)
         message.attach(MIMEText(html_img, 'html', 'utf-8'))  # 添加到邮件正文
     except:  # 只发送文字
-        content = MIMEText('%s' % info)
+        content = MIMEText('%s' % info, 'plain', 'utf-8')
         message.attach(content)
 
     try:
@@ -139,21 +137,42 @@ if __name__ == "__main__":
         encoding='utf-8'
     )
 
-    parser = argparse.ArgumentParser(description='V2free签到脚本')
-    parser.add_argument('--username', type=str,help='账号')
-    parser.add_argument('--password', type=str, help='密码')
+    parser = argparse.ArgumentParser(description='V2free签到脚本（所有账号汇总为一封邮件）')
+    parser.add_argument('--usernames', type=str, help='账号，多个用英文逗号分隔')
+    parser.add_argument('--passwords', type=str, help='密码，多个用英文逗号分隔，顺序与账号对应')
     parser.add_argument('--remail', type=str, help='接收邮箱')
     parser.add_argument('--semail', type=str, help='发送邮箱')
     parser.add_argument('--secode', type=str, help='发送密码')
     args = parser.parse_args()
-    msg = main(args.username,args.password)
-    logging.info(mask_email(msg))   # 写入 run.log（邮箱已脱敏）
-    print(msg)
 
-    #加#每次都发邮件，不加#   %d 取的是"日"（1~31）​，不是小时% 3 == 0 意味着只在 3、6、9、12、15、18、21、24、27、30 号这 10 天发邮件今天是 20 号，20 % 3 = 2，不会发邮件
-    #每次运行都发邮件
-    #if int(time.strftime("%d", time.localtime()))% 3== 0:
-    send(info=msg,mail=[args.semail,args.secode],receivers=args.remail)
+    # 兼容旧的 --username/--password 单账号参数
+    usernames = args.usernames if args.usernames else ''
+    passwords = args.passwords if args.passwords else ''
+    user_list = [u.strip() for u in usernames.split(',') if u.strip()]
+    pwd_list = [p.strip() for p in passwords.split(',') if p.strip()]
 
-      
+    if len(user_list) == 0 or len(user_list) != len(pwd_list):
+        print('账号为空，或账号与密码个数不对应')
+        raise SystemExit(1)
 
+    print(f'共有 {len(user_list)} 个账号，开始签到')
+
+    # 逐个签到，收集所有结果，不逐个发邮件
+    results = []
+    for usr, pw in zip(user_list, pwd_list):
+        try:
+            result = main(usr, pw)
+        except Exception as e:
+            result = usr + ' ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' ❌ 签到异常：' + str(e)
+        logging.info(mask_email(result))   # 写入 run.log（邮箱已脱敏）
+        print(result)
+        results.append(result)
+
+    # 所有账号签到完成后，统一发送一封汇总邮件
+    info = '\n'.join(results)
+    now = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+    has_fail = any('❌' in r for r in results)
+    status = '部分失败' if has_fail else '全部成功'
+    subject = f'【V2free签到】{now} {status}（{len(results)}个账号）'
+    send(info=info, mail=[args.semail, args.secode], receivers=args.remail, subject=subject)
+    print(f'汇总邮件已发送（共 {len(results)} 个账号）')

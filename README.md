@@ -38,7 +38,7 @@ V2free auto check-in with email notification and auto-committed run.log
 
 ## 运行机制
 
-**定时执行**：workflow 中 cron 为 UTC `0 23` 和 `0 4`，对应北京时间 **07:00** 和 **12:00**。GitHub 定时任务在高负载时可能延迟几分钟到几十分钟，属正常现象；手动触发（Run workflow）无延迟。
+**定时执行**：workflow 中 cron 为 UTC `0 23` 和 `0 4`，对应北京时间 **08:00** 和 **12:00**。GitHub 定时任务在高负载时可能延迟几分钟到几十分钟，属正常现象；手动触发（Run workflow）无延迟。
 
 **邮件通知**：`main.py` 的 `send()` 通过 QQ 邮箱 SMTP（`smtp.qq.com:465`，SSL）发送，每次运行都发一封。`secode` 填登录密码会发送失败，必须用授权码。
 

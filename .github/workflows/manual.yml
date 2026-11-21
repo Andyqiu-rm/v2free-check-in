@@ -5,8 +5,9 @@ on:
   
   schedule:
     # GitHub cron 使用 UTC，北京时间 = UTC+8
-    # 北京时间每天 07:00 签到一次（原 12:00 那次常因"请求过于频繁"失败，已移除）
+    # 北京时间：07:00 / 12:00，每天签到两次
     - cron: "0 23 * * *"
+    - cron: "0 4 * * *"
 
 concurrency:
   group: v2freecheckin

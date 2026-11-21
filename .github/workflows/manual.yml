@@ -2,6 +2,7 @@ name: V2freeCheckin
 
 on:
   workflow_dispatch:
+  
   schedule:
     # UTC: Beijing 07:00,12:00
     - cron: "0 23 * * *"

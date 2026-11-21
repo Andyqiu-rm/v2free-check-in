@@ -4,9 +4,11 @@ on:
   workflow_dispatch:
   
   schedule:
-    # UTC: Beijing 07:00,12:00
+    # GitHub cron 使用 UTC，北京时间 = UTC+8
+    # 北京时间：07:00 / 12:00 / 15:40（新增 15:40，触发点数量与 checkin 仓库一致）
     - cron: "0 23 * * *"
     - cron: "0 4 * * *"
+    - cron: "40 7 * * *"
 
 concurrency:
   group: v2freecheckin
@@ -121,4 +123,23 @@ jobs:
       if: always()
       run: cat run.log || echo "run.log 不存在"
 
-
+    # 心跳保活：每次运行都提交一次 .keepalive，让仓库保持活跃，降低定时任务被暂停的风险
+    - name: Keepalive (.keepalive)
+      if: always()
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        date -u '+%F %T UTC' > .keepalive
+        git add -f .keepalive
+        if git diff --cached --quiet; then
+          echo "心跳文件未变化，跳过提交"
+        else
+          git commit -m "chore: heartbeat [skip ci]"
+          # push 被拒（远程有新提交）时 rebase 后重试，避免与 run.log 提交冲突
+          if ! git push; then
+            echo "心跳 push 被拒，rebase 后重试"
+            git pull --rebase origin "${{ github.ref_name }}" || true
+            git push || echo "心跳推送失败，跳过"
+          fi
+        fi

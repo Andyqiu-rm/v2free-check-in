@@ -1,5 +1,5 @@
-#andyqiu
-crontab~=0.22.9
-requests==2.31.0
-urllib3==1.26.20
-six
+# V2free 签到依赖（工作流通过 pip install -r requirements.txt 安装）
+# crontab 已移除：GitHub Actions 用 workflow 的 schedule 定时，不需要该库
+requests==2.31.0        # HTTP 请求（登录/签到）
+urllib3==1.26.20        # requests 底层依赖，锁定版本避免兼容问题
+six                     # urllib3 1.26 的依赖

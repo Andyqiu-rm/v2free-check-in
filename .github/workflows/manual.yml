@@ -5,9 +5,8 @@ on:
   
   schedule:
     # GitHub cron 使用 UTC，北京时间 = UTC+8
-    # 北京时间：07:00 / 12:00 /（触发点数量与 checkin 仓库一致）
+    # 北京时间每天 07:00 签到一次（原 12:00 那次常因"请求过于频繁"失败，已移除）
     - cron: "0 23 * * *"
-    - cron: "0 4 * * *"
 
 concurrency:
   group: v2freecheckin
@@ -45,7 +44,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install urllib3==1.26.20 requests==2.31.0 six
+        pip install -r requirements.txt
         
     - name: Checkin
       run: |

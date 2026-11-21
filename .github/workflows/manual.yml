@@ -51,33 +51,23 @@ jobs:
       run: |
         user='${{ secrets.USER }}'
         pwd='${{ secrets.PWD }}'
-        remail='${{secrets.remail}}'        
-        semail='${{secrets.semail}}'
-        secode='${{secrets.secode}}'
-        
-        user_list=()
-        pwd_list=()
-        IFS=","
-        for u in ${user[*]}
-        do
-        user_list[${#user_list[*]}]=${u}
-        done
-        for p in ${pwd[*]}
-        do
-        pwd_list[${#pwd_list[*]}]=${p}
-        done
-        user_num=${#user_list[*]}
-        pwd_num=${#pwd_list[*]}
-        if [ $user_num != $pwd_num ];then
-        echo "账号和密码个数不对应"
-        exit 1
-        else
-        echo "共有 $user_num 个账号，即将开始签到"
+        remail='${{ secrets.remail }}'
+        semail='${{ secrets.semail }}'
+        secode='${{ secrets.secode }}'
+
+        # 账号与密码个数校验（逗号分隔）
+        IFS="," read -ra user_list <<< "$user"
+        IFS="," read -ra pwd_list <<< "$pwd"
+        user_num=${#user_list[@]}
+        pwd_num=${#pwd_list[@]}
+        if [ "$user_num" != "$pwd_num" ]; then
+          echo "账号和密码个数不对应"
+          exit 1
         fi
-        for ((i=0;i<$user_num;i++))
-        do
-        python3 main.py --username ${user_list[$i]} --password ${pwd_list[$i]} --remail=${remail} --semail=${semail} --secode=${secode}
-        done
+        echo "共有 $user_num 个账号，即将开始签到"
+
+        # 所有账号一次传入，脚本内部签到完后只发一封汇总邮件
+        python3 main.py --usernames="$user" --passwords="$pwd" --remail="$remail" --semail="$semail" --secode="$secode"
 
     - name: Commit run.log
       if: always()

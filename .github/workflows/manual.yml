@@ -8,7 +8,6 @@ on:
     # 北京时间：07:00 / 12:00 / 15:40（新增 15:40，触发点数量与 checkin 仓库一致）
     - cron: "0 23 * * *"
     - cron: "0 4 * * *"
-    - cron: "40 7 * * *"
 
 concurrency:
   group: v2freecheckin

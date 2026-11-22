@@ -9,6 +9,7 @@ import argparse
 import logging
 
 
+
 BASE_URL = "https://w1.v2ai.top"  # 新版登录/签到域名
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "

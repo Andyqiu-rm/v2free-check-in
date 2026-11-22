@@ -4,7 +4,7 @@ V2free auto check-in with email notification and auto-committed run.log
 
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-enabled-2088FF?logo=github-actions&logoColor=white)](https://github.com/features/actions)
-[![Schedule](https://img.shields.io/badge/定时-08%3A00%20%2F%2012%3A00-orange)](https://github.com/features/actions)
+[![Schedule](https://img.shields.io/badge/定时-08%3A02%20%2F%2012%3A02-orange)](https://github.com/features/actions)
 
 基于 GitHub Actions 的 V2free 自动签到方案：定时签到、邮件通知，签到结果自动写入 `run.log` 并归档到仓库。
 
@@ -13,7 +13,7 @@ V2free auto check-in with email notification and auto-committed run.log
 ## 功能特性
 
 - 支持**多账号**批量签到，账号与密码用半角逗号分隔
-- 每天 **08:00 / 12:00**（北京时间）自动运行，也可随时手动触发
+- 每天 **08:02/ 12:02**（北京时间）自动运行，也可随时手动触发
 - 每次运行发送**邮件通知**，展示签到结果与剩余流量
 - 签到结果写入 `run.log` 并**自动提交回仓库**，邮箱脱敏，可长期追溯
 - 提交信息自动标注 `⭐ 签到成功` 或 `❌ 签到失败`，一目了然
@@ -54,7 +54,7 @@ V2free auto check-in with email notification and auto-committed run.log
 | `🟢 您似乎已经签到过了...` | 今日已签到过（站点返回原文） |
 | `❌ 签到失败：原因` | 签到失败，如"请求过于频繁，请稍后再试" |
 
-三种状态末尾均附带当前流量：`剩余流量：***GB，今日已用：***MB`。
+三种状态末尾均附带当前流量：`剩余流量：***GB，今日已用：***GB`。
 
 ## 注意事项
 

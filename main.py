@@ -115,10 +115,14 @@ def fetch_user_info(client, usr=""):
                 return info
 
             # 没抓全，打印诊断（只进 Actions 运行日志，不进邮件正文）
+            # 注意：Python 3.10/3.11 的 f-string 表达式里不能出现反斜杠，
+            # 所以把带引号的判断先在表达式外算好，避免 \" 这类转义引发 SyntaxError。
+            has_remain = 'id="remain"' in html
+            has_used = "今日已用" in html
             print(f"[诊断] {mask_email(usr)} 第{attempt}次抓用户中心页未拿全流量："
                   f"HTTP {resp.status_code}，HTML {len(html)} 字符，"
-                  f"含 id=remain: {'id=\"remain\"' in html}，"
-                  f"含 今日已用: {'今日已用' in html}")
+                  f"含 id=remain: {has_remain}，"
+                  f"含 今日已用: {has_used}")
         except Exception as e:
             print(f"[诊断] {mask_email(usr)} 第{attempt}次抓用户中心页异常：{e}")
 

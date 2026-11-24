@@ -76,27 +76,57 @@ def main(usr, pw):
         msg = "❌ 签到失败：" + (checkin_msg if checkin_msg else str(resp.text))
 
     # 4. 从用户中心页面获取当前流量信息（签到已过/失败时也能拿到）
-    info = fetch_user_info(client)
+    time.sleep(1)  # 稍等片刻，让登录会话在服务端稳定下来
+    info = fetch_user_info(client, usr)
     extra = ""
     if info:
         extra = "，剩余流量：" + info.get("剩余流量", "?") + "，今日已用：" + info.get("今日已用", "?")
     return usr + " " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " " + msg + extra
 
 
-def fetch_user_info(client):
-    """登录后读取用户中心页面的账号流量信息"""
-    try:
-        html = client.get(BASE_URL + "/user").text
-        info = {}
-        m = re.search(r'id="remain"[^>]*>([^<]+)<', html)
-        if m:
-            info["剩余流量"] = m.group(1).strip()
-        m = re.search(r'今日已用:\s*<a[^>]*>([^<]+)<', html)
-        if m:
-            info["今日已用"] = m.group(1).strip()
-        return info
-    except Exception:
-        return {}
+def fetch_user_info(client, usr=""):
+    """登录后读取用户中心页面的账号流量信息（带重试）。
+
+    原来只抓一次、正则又写死成 <a> 标签，遇到服务端限流或页面结构变化
+    就整段拿不到，导致邮件里第二、三个账号没有流量字段。这里改为：
+    1) 多个正则兜底；2) 抓不到就重试几次；3) 失败时打印诊断，便于排查。
+    """
+    info = {}
+    for attempt in range(1, 4):  # 最多抓 3 次
+        try:
+            resp = client.get(BASE_URL + "/user", timeout=20)
+            html = resp.text
+
+            # 剩余流量：优先 id="remain"，再兜底找中文标签后紧跟的流量数字
+            m = re.search(r'id="remain"[^>]*>([^<]+)<', html)
+            if not m:
+                m = re.search(r'剩余流量[^0-9]{0,40}?([0-9]+\.?[0-9]*\s*[KMGT]?B)', html, re.I)
+            if m:
+                info["剩余流量"] = m.group(1).strip()
+
+            # 今日已用：不写死 <a> 标签，兼容任意标签或纯文本
+            m = re.search(r'今日已用[^:：]*[:：]?\s*<[^>]*>\s*([^<]+)<', html)
+            if not m:
+                m = re.search(r'今日已用[^0-9]{0,40}?([0-9]+\.?[0-9]*\s*[KMGT]?B)', html, re.I)
+            if m:
+                info["今日已用"] = m.group(1).strip()
+
+            if info.get("剩余流量") and info.get("今日已用"):
+                return info
+
+            # 没抓全，打印诊断（只进 Actions 运行日志，不进邮件正文）
+            print(f"[诊断] {mask_email(usr)} 第{attempt}次抓用户中心页未拿全流量："
+                  f"HTTP {resp.status_code}，HTML {len(html)} 字符，"
+                  f"含 id=remain: {'id=\"remain\"' in html}，"
+                  f"含 今日已用: {'今日已用' in html}")
+        except Exception as e:
+            print(f"[诊断] {mask_email(usr)} 第{attempt}次抓用户中心页异常：{e}")
+
+        if attempt < 3:
+            time.sleep(2)  # 等 2 秒再试，避开限流窗口
+
+    # 三次都没拿全：有多少返回多少，缺失的由调用方补 "?"
+    return info
 
 
 # 发送汇总邮件：所有账号的结果放在一封邮件里
@@ -160,7 +190,9 @@ if __name__ == "__main__":
 
     # 逐个签到，收集所有结果，不逐个发邮件
     results = []
-    for usr, pw in zip(user_list, pwd_list):
+    for idx, (usr, pw) in enumerate(zip(user_list, pwd_list)):
+        if idx > 0:
+            time.sleep(3)  # 账号之间间隔 3 秒，降低连续请求触发限流的概率
         try:
             result = main(usr, pw)
         except Exception as e:

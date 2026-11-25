@@ -2,7 +2,7 @@
 
 V2free auto check-in with email notification and auto-committed run.log
 
-[![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Python 3.10](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-enabled-2088FF?logo=github-actions&logoColor=white)](https://github.com/features/actions)
 [![Schedule](https://img.shields.io/badge/定时-08%3A17%20%2F%2012%3A23-orange)](https://github.com/features/actions)
 

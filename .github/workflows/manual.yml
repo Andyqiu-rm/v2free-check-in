@@ -63,7 +63,7 @@ jobs:
         echo "共有 $user_num 个账号，即将开始签到"
 
         # 所有账号一次传入，脚本内部签到完后只发一封汇总邮件
-        python3 main.py --usernames="$user" --passwords="$pwd" --remail="$remail" --semail="$semail" --secode="$secode"
+        python main.py --usernames="$user" --passwords="$pwd" --remail="$remail" --semail="$semail" --secode="$secode"
 
     - name: Commit run.log
       if: always()

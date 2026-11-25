@@ -4,9 +4,10 @@ on:
   workflow_dispatch:
   schedule:
     # GitHub cron 使用 UTC，北京时间 = UTC+8
-    # 北京时间：08:17 / 12:23，每天签到两次
-    - cron: "17 0 * * *"
-    - cron: "23 4 * * *"
+    # UTC: Beijing 07:00,12:00,and 23：30
+    - cron: "0 23 * * *"
+    - cron: "0 4 * * *"
+    - cron: "30 15 * * *"
 
 concurrency:
   group: v2freecheckin

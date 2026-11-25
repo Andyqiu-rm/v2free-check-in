@@ -3,11 +3,14 @@ name: V2freeCheckin
 on:
   workflow_dispatch:
   schedule:
-    # GitHub cron 使用 UTC，北京时间 = UTC+8
-    # UTC: Beijing 07:00,12:00,and 23：30
-    - cron: "0 23 * * *"
-    - cron: "0 4 * * *"
-    - cron: "30 15 * * *"
+    # 已指定 Asia/Shanghai，下面 cron 直接按北京时间解释，不用减 8 小时
+    # UTC: Beijing 07:07,10:07,and 16：07
+    - cron: '7 7 * * *'
+      timezone: Asia/Shanghai
+    - cron: '7 11 * * *'
+      timezone: Asia/Shanghai
+    - cron: '7 15 * * *'
+      timezone: Asia/Shanghai
 
 concurrency:
   group: v2freecheckin

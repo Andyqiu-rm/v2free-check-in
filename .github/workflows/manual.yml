@@ -66,6 +66,12 @@ jobs:
         fi
         echo "共有 $user_num 个账号，即将开始签到"
 
+        # 记录账号数与签前日志行数，供后面的作业摘要精确取出本次新增明细
+        echo "SUMMARY_USER_NUM=$user_num" >> "$GITHUB_ENV"
+        summary_start=0
+        [ -f run.log ] && summary_start=$(wc -l < run.log)
+        echo "SUMMARY_START_LINE=$summary_start" >> "$GITHUB_ENV"
+
         # 所有账号一次传入，脚本内部签到完后只发一封汇总邮件
         python main.py --usernames="$user" --passwords="$pwd" --remail="$remail" --semail="$semail" --secode="$secode"
 
@@ -111,3 +117,28 @@ jobs:
     - name: Show run.log
       if: always()
       run: cat run.log || echo "run.log 不存在"
+
+    - name: Write job summary
+      if: always()
+      run: |
+        {
+          echo "### V2Free 签到结果"
+          echo ""
+          echo "- 运行时间：$(date '+%Y-%m-%d %H:%M:%S %Z')"
+          echo "- 触发方式：${{ github.event_name }}"
+          echo "- 运行编号：#${{ github.run_number }}"
+          echo "- 账号数量：${SUMMARY_USER_NUM:-未知}"
+          echo ""
+          start=${SUMMARY_START_LINE:-0}
+          if [ -s run.log ]; then
+            echo "<details open><summary>本次签到明细（邮箱已脱敏）</summary>"
+            echo ""
+            echo '```text'
+            tail -n +$((start + 1)) run.log
+            echo '```'
+            echo ""
+            echo "</details>"
+          else
+            echo "> 本次未生成 run.log，请检查 Checkin 步骤日志。"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"    

@@ -1,0 +1,48 @@
+name: 保活（防止定时任务被停用）
+
+# GitHub 会在公开仓库连续 60 天无活动时自动停用定时任务。
+# 本工作流每周一产生一次提交，让仓库保持活跃。
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'   # 每周一 09:00 北京时间
+      timezone: Asia/Shanghai
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出默认分支
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: 更新时间戳文件
+        run: |
+          mkdir -p .github
+          echo "最后保活时间：$(date '+%Y-%m-%d %H:%M:%S %Z')" > .github/keepalive.txt
+
+      - name: 提交并推送
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive.txt
+          if git diff --staged --quiet; then
+            echo "内容无变化，本次跳过提交"
+          else
+            git commit -m "chore: keepalive $(date -u +%Y-%m-%d)"
+            if ! git push; then
+              echo "推送被拒，rebase 后重试"
+              git pull --rebase origin "${{ github.event.repository.default_branch }}" || true
+              git push || echo "重试仍失败，跳过"
+            fi
+          fi

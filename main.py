@@ -29,7 +29,7 @@ def main(usr, pw):
     client.headers.update({"User-Agent": UA})
 
     # 1. 访问登录页，获取初始 Cookie
-    client.get(BASE_URL + "/auth/login")
+    client.get(BASE_URL + "/auth/login", timeout=20)
 
     # 2. 登录（新版表单字段：email/passwd/code/agree/remember_me）
     login_data = {
@@ -46,12 +46,13 @@ def main(usr, pw):
             "Referer": BASE_URL + "/auth/login",
             "X-Requested-With": "XMLHttpRequest",
         },
+        timeout=20,
     )
     try:
         login_result = resp.json()
     except ValueError:
         return usr + " " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " ❌ 登录失败：返回内容不是 JSON"
-    if login_result.get("ret") != 1:
+    if str(login_result.get("ret", "")).strip() != "1":
         return usr + " " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " ❌ 登录失败：" + str(login_result.get("msg", resp.text))
 
     # 3. 签到（接口未变：POST /user/checkin）
@@ -61,6 +62,7 @@ def main(usr, pw):
             "Referer": BASE_URL + "/user",
             "X-Requested-With": "XMLHttpRequest",
         },
+        timeout=20,
     )
     try:
         checkin_result = resp.json()
@@ -68,7 +70,7 @@ def main(usr, pw):
         return usr + " " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + " ❌ 签到失败：返回内容不是 JSON"
 
     checkin_msg = str(checkin_result.get("msg", ""))
-    if checkin_result.get("ret") == 1:
+    if str(checkin_result.get("ret", "")).strip() == "1":
         msg = "✅ " + (checkin_msg if checkin_msg else "签到成功")
     elif ("签" in checkin_msg and "已" in checkin_msg) or "已签到" in checkin_msg:
         msg = "🟢 " + (checkin_msg if checkin_msg else "今日已签到")
@@ -149,18 +151,19 @@ def send(info, mail, receivers, subject='', imgpth=''):
         html_img = f'<p>{info}<br><img src="cid:image1"></br></p>'  # html格式添加图片
         message.attach(msgImage)
         message.attach(MIMEText(html_img, 'html', 'utf-8'))  # 添加到邮件正文
-    except:  # 只发送文字
+    except Exception:  # 只发送文字
         content = MIMEText('%s' % info, 'plain', 'utf-8')
         message.attach(content)
 
     try:
-        server = smtplib.SMTP_SSL("smtp.qq.com", 465)
+        server = smtplib.SMTP_SSL("smtp.qq.com", 465, timeout=20)
         server.login(sender, key)
         server.sendmail(sender, receivers, message.as_string())
         server.quit()
-        # print("send OK")
-    except smtplib.SMTPException as e:
-        print(e)
+        return True
+    except Exception as e:
+        print(f"[邮件] 发送失败：{e}")
+        return False
 
 
 if __name__ == "__main__":
@@ -202,7 +205,7 @@ if __name__ == "__main__":
         except Exception as e:
             result = usr + ' ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' ❌ 签到异常：' + str(e)
         logging.info(mask_email(result))   # 写入 run.log（邮箱已脱敏）
-        print(result)
+        print(mask_email(result))          # 控制台输出也脱敏，避免账号出现在 Actions 日志
         results.append(result)
 
     # 所有账号签到完成后，统一发送一封汇总邮件
@@ -211,5 +214,8 @@ if __name__ == "__main__":
     has_fail = any('❌' in r for r in results)
     status = '部分失败' if has_fail else '全部成功'
     subject = f'【V2free签到】{now} {status}（{len(results)}个账号）'
-    send(info=info, mail=[args.semail, args.secode], receivers=args.remail, subject=subject)
-    print(f'汇总邮件已发送（共 {len(results)} 个账号）')
+    sent = send(info=info, mail=[args.semail, args.secode], receivers=args.remail, subject=subject)
+    if sent:
+        print(f'汇总邮件已发送（共 {len(results)} 个账号）')
+    else:
+        print(f'汇总邮件发送失败（共 {len(results)} 个账号）')

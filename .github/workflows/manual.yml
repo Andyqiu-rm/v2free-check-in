@@ -24,6 +24,9 @@ permissions:
 jobs:
   check-in:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TZ: Asia/Shanghai
 
     steps:
     - name: Checkout code
@@ -39,12 +42,18 @@ jobs:
         pip install -r requirements.txt
         
     - name: Checkin
+      env:
+        V2_USER: ${{ secrets.USER }}
+        V2_PWD: ${{ secrets.PWD }}
+        V2_REMAIL: ${{ secrets.remail }}
+        V2_SEMAIL: ${{ secrets.semail }}
+        V2_SECODE: ${{ secrets.secode }}
       run: |
-        user='${{ secrets.USER }}'
-        pwd='${{ secrets.PWD }}'
-        remail='${{ secrets.remail }}'
-        semail='${{ secrets.semail }}'
-        secode='${{ secrets.secode }}'
+        user="$V2_USER"
+        pwd="$V2_PWD"
+        remail="$V2_REMAIL"
+        semail="$V2_SEMAIL"
+        secode="$V2_SECODE"
 
         # 账号与密码个数校验（逗号分隔）
         IFS="," read -ra user_list <<< "$user"

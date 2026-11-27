@@ -71,7 +71,7 @@ V2free auto check-in with email notification and auto-committed run.log
   <img src="assets/donate-alipay.jpg" width="260" alt="支付宝收款码" />
 </p>
 
-<p align="center"><sub>微信支付（左） · 支付宝（右）</sub></p>
+<p align="center"><sub>微信支付（左）      ·      支付宝（右）</sub></p>
 
 > [!WARNING]
 > 收款码仅用于向作者自愿赞赏。任何第三方以代下载、代部署、内部资源、会员群或官方授权为由收费，均与作者无关。

@@ -1,4 +1,4 @@
-# V2free 自动签到 · 邮件通知 · 日志归档 · 青龙面板
+# V2free 自动签到 · 邮件通知 · 日志归档 · 青龙面板<img width="100" src="https://user-images.githubusercontent.com/22700758/191449379-f9f56204-0e31-4a16-be5a-331f52696a73.png">
 
 V2free auto check-in with email notification and auto-committed run.log
 
@@ -7,7 +7,7 @@ V2free auto check-in with email notification and auto-committed run.log
 [![Schedule](https://img.shields.io/badge/定时-07%3A07%20%2F%2011%3A07%20%2F%2015%3A07-orange)](https://github.com/features/actions)
 
 
-<img width="100" src="https://user-images.githubusercontent.com/22700758/191449379-f9f56204-0e31-4a16-be5a-331f52696a73.png">
+
   
 基于 GitHub Actions 的 V2free 自动签到方案：定时签到、邮件通知，签到结果自动写入 `run.log` 并归档到仓库。
 

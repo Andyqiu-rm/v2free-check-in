@@ -18,6 +18,7 @@ V2free auto check-in with email notification and auto-committed run.log
 - 签到结果写入 `run.log` 并**自动提交回仓库**，邮箱脱敏，可长期追溯
 - 提交信息自动标注 `⭐ 签到成功` 或 `❌ 签到失败`，一目了然
 - 内置 `concurrency` 并发锁，避免多次触发导致日志提交冲突
+- 后续增加qinglong面板配置方法
 
 ## 快速开始
 

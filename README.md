@@ -1,4 +1,4 @@
-# V2free 自动签到 · 邮件通知 · 日志归档
+# V2free 自动签到 · 邮件通知 · 日志归档 · 青龙面板
 
 V2free auto check-in with email notification and auto-committed run.log
 
